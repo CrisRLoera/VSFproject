@@ -10,33 +10,64 @@ void main() {
 class MainApp extends StatelessWidget {
   MainApp({super.key});
   final port = SerialPort('COM3');
-
-  //setup Serial
-
-  void writeSerial() {
-    port.write(Uint8List.fromList("101001".codeUnits));
-  }
+  String response = "";
 
   @override
   Widget build(BuildContext context) {
-    port.openReadWrite();
-    port.config = SerialPortConfig()
-      ..baudRate = 115200
-      ..bits = 8
-      ..parity = SerialPortParity.none
-      ..stopBits = 1
-      ..setFlowControl(SerialPortFlowControl.none);
-
     return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: ElevatedButton(
+        home: Scaffold(
+      body: Center(
+        child: Row(children: [
+          ElevatedButton(
               onPressed: () {
-                writeSerial();
+                onButtonPressed();
               },
               child: const Text("Enviar")),
-        ),
+          ElevatedButton(
+              onPressed: listenForrespon, child: const Text("Escuchar"))
+        ]),
       ),
-    );
+    ));
+  }
+
+  void onButtonPressed() async {
+    try {
+      port.openReadWrite();
+      port.config = SerialPortConfig()
+        ..baudRate = 9600
+        ..bits = 8
+        ..parity = SerialPortParity.none
+        ..stopBits = 1
+        ..setFlowControl(SerialPortFlowControl.none);
+      port.write(Uint8List.fromList("1".codeUnits));
+    } on Exception catch (_) {
+      print("error 1");
+      port.close();
+    }
+    port.close();
+  }
+
+  void listenForrespon() async {
+    try {
+      port.openRead();
+      port.config = SerialPortConfig()
+        ..baudRate = 9600
+        ..bits = 8
+        ..parity = SerialPortParity.none
+        ..stopBits = 1
+        ..setFlowControl(SerialPortFlowControl.none);
+      //print(port.bytesAvailable);
+      Uint8List data = port.read(1);
+      String dataString = String.fromCharCodes(data);
+      //print(dataString);
+      //print(port.read(8));
+      if (dataString == "1") {
+        print("exito");
+      }
+    } on Exception catch (err, _) {
+      print(SerialPort.lastError);
+      port.close();
+    }
+    port.close();
   }
 }
