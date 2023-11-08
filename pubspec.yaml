@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_libserialport: ^0.3.0
+  flutter_libserialport: ^0.3.0 
+  syncfusion_flutter_gauges: ^23.1.44
 
 dev_dependencies:
   flutter_test:
