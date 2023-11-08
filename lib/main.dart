@@ -1,18 +1,20 @@
 import 'dart:typed_data';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 void main() {
-  runApp(MainApp());
+  runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: MainPanel(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -21,20 +23,24 @@ class MainPanel extends StatefulWidget {
   const MainPanel({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _MainPanelState createState() => _MainPanelState();
 }
 
 class _MainPanelState extends State<MainPanel> {
+  // Set up for the port using COM3
   final port = SerialPort('COM3');
-  String response = "";
+
   String _annotationValue = '0';
+
+  //String response = "";
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
           body: Center(
-              child: Row(
+              child: Column(
         children: [
           SfRadialGauge(
             axes: <RadialAxis>[
@@ -42,42 +48,34 @@ class _MainPanelState extends State<MainPanel> {
                 minimum: 0,
                 maximum: 255,
                 pointers: <GaugePointer>[
-                  RangePointer(
+                  MarkerPointer(
                     value: double.parse(_annotationValue),
                     onValueChanged: handlePointerValueChanged,
                     enableDragging: true,
+                    markerType: MarkerType.circle,
                   )
                 ],
                 annotations: <GaugeAnnotation>[
                   GaugeAnnotation(
-                      widget: Column(
-                        children: <Widget>[
-                          Text(
-                            '$_annotationValue',
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'Times',
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 131, 140, 141)),
-                          ),
-                          Text(
-                            ' %',
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'Times',
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF00A8B5)),
-                          )
-                        ],
-                      ),
-                      positionFactor: 0.13,
-                      angle: 0)
+                    widget: Text(
+                      _annotationValue,
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Times',
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 131, 140, 141)),
+                    ),
+                    angle: 0,
+                    positionFactor: 0,
+                  )
                 ],
               )
             ],
           ),
-          ElevatedButton(onPressed: onButtonPressed, child: Text("Send")),
-          ElevatedButton(onPressed: listenForrespon, child: Text("Listen"))
+          const SizedBox(height: 10),
+          ElevatedButton(onPressed: onButtonPressed, child: const Text("Send")),
+          //SizedBox(height: 10),
+          //ElevatedButton(onPressed: listenForrespon, child: Text("Listen"))
         ],
       ))),
     );
@@ -85,8 +83,8 @@ class _MainPanelState extends State<MainPanel> {
 
   void handlePointerValueChanged(double value) {
     setState(() {
-      final int _value = value.toInt();
-      _annotationValue = '$_value';
+      final int value0 = value.toInt();
+      _annotationValue = '$value0';
     });
   }
 
@@ -110,6 +108,7 @@ class _MainPanelState extends State<MainPanel> {
     port.close();
   }
 
+  /** 
   void listenForrespon() async {
     try {
       port.openRead();
@@ -120,7 +119,7 @@ class _MainPanelState extends State<MainPanel> {
         ..stopBits = 1
         ..setFlowControl(SerialPortFlowControl.none);
       //print(port.bytesAvailable);
-      Uint8List data = port.read(1);
+      Uint8List data = port.read(8);
       String dataString = String.fromCharCodes(data);
       print(dataString);
       print(port.read(8));
@@ -133,4 +132,5 @@ class _MainPanelState extends State<MainPanel> {
     }
     port.close();
   }
+  */
 }
